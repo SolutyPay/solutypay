@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id         String       @id @default(uuid())
+  name       String? /// @encrypted <- annotate fields to encrypt
+  email      String       @unique /// @encryption:cursor <- iterate over this field instead  
+  password   String
+  photo      String?
+  active     Boolean      @default(true)
+  created_at DateTime     @default(now())
+  updated_at DateTime?    @updatedAt
+  keys       keys[]
+  batch      batch[]
+  batchItens batchItens[]
+}
+
+model keys {
+  id            String    @id @default(uuid())
+  user_id       user      @relation(fields: [userId], references: [id])
+  userId        String
+  client_id     String? /// @encrypted <- annotate fields to encrypt
+  client_secret String? /// @encrypted <- annotate fields to encrypt
+  token         String? /// @encrypted <- annotate fields to encrypt
+  active        Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt
+}
+
+model batch {
+  id         String       @id @default(uuid())
+  user_id    user         @relation(fields: [userId], references: [id])
+  userId     String
+  name       String? /// @encrypted <- annotate fields to encrypt
+  start      DateTime     @default(now())
+  active     Boolean      @default(true)
+  created_at DateTime     @default(now())
+  updated_at DateTime?    @updatedAt
+  batchItens batchItens[]
+}
+
+model batchItens {
+  id         String    @id @default(uuid())
+  user_id    user      @relation(fields: [userId], references: [id])
+  userId     String
+  batch_id   batch     @relation(fields: [batchId], references: [id])
+  batchId    String
+  name       String? /// @encrypted <- annotate fields to encrypt
+  cpf        String? /// @encrypted <- annotate fields to encrypt
+  keyType    String? /// @encrypted <- annotate fields to encrypt
+  key        String? /// @encrypted <- annotate fields to encrypt
+  price      Float?  
+  active     Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
+}
